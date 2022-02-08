@@ -1,0 +1,1 @@
+# smartjournal-AI
