@@ -32,14 +32,20 @@ f=open('test.txt','r')
 x_test=[]
 y_test=[]
 for i in f:
-    l=i.split(';')
-    y_test.append(l[1].strip())
-    x_test.append(l[0])
+    try:
+        l=i.split(';')
+        y_test.append(l[1].strip())
+        x_test.append(l[0])
+    except IndexError:
+        pass
 f=open('val.txt','r')
 for i in f:
-    l=i.split(';')
-    y_test.append(l[1].strip())
-    x_test.append(l[0])
+    try:
+        l=i.split(';')
+        y_test.append(l[1].strip())
+        x_test.append(l[0])
+    except IndexError:
+        pass
 data_train=pd.DataFrame({'Text':x_train,'Emotion':y_train})
 data_test=pd.DataFrame({'Text':x_test,'Emotion':y_test})
 data=data_train.append(data_test,ignore_index=True)
@@ -70,8 +76,11 @@ class_names=['anger','sadness','fear','joy','surprise','love']
 X_train_pad=pad_sequences(sequence_train,maxlen=max_seq_len)
 X_test_pad=pad_sequences(sequence_test,maxlen=max_seq_len)
 encoding={'anger':0,'sadness':1,'fear':2,'joy':3,'surprise':4,'love':5}
-y_train=[encoding[x] for x in data_train.Emotion]
-y_test=[encoding[x] for x in data_test.Emotion]
+try:
+    y_train=[encoding[x] for x in data_train.Emotion]
+    y_test=[encoding[x] for x in data_test.Emotion]
+except KeyError:
+    pass
 try:
     y_train=to_categorical(y_train)
     y_test=to_categorical(y_test)
@@ -105,9 +114,14 @@ model.add(Bidirectional(GRU(units=gru_output_size,dropout=0.2,recurrent_dropout=
 model.add(Dense(num_classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
 
+# change variables passed into fitted model as np.array
+
+
 # train the model using our training set and test the accuracy simultaneously
 batch_size=128
 epochs=8
+#print(type(y_train))
+y_train=np.array(y_train)
 hist=model.fit(X_train_pad,y_train,batch_size=batch_size,epochs=epochs,validation_data=(X_test_pad,y_test))
 
 # test the model
