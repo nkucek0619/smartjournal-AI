@@ -127,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+wiki-news-300d-1M.vec
