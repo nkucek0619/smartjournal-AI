@@ -16,6 +16,26 @@ def filter_words(text):
     return new
 
 def run_inference(text):
+    prompt_text = f"Determine if the Text's emotion is Joy, Fear, Anger, Sadness, Love, or Surprise.\n\nText: {text}\n\nEmotion:"
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt_text,
+        temperature=0.7,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+    )
+
+    choices = response.get('choices')
+    if not choices:
+        return 'unknown'
+    text = choices[0].get('text')
+    if not text:
+        return 'unknown'
+    return text.strip().lower()
+
+def run_classification(text):
     response = openai.Classification.create(
         file=f,
         query=text,
@@ -37,6 +57,7 @@ def get_latest_entry(supabase_client):
     return data.data[0]
 
 if __name__=="__main__":
+    # print(run_inference("I like trains."))
     supabase = create_client(supabase_url, supabase_key)
     while True:
         data = get_latest_entry(supabase)
@@ -44,7 +65,8 @@ if __name__=="__main__":
         if not inference:
             print(data)
             try:
-                new_inference = run_inference(filter_words(data.get('entry')))
+                # new_inference = run_classification(filter_words(data.get('entry')))
+                new_inference = run_inference(data.get('entry'))
                 if new_inference == 'unknown':
                     new_inference = data.get('mood')
                 else:
