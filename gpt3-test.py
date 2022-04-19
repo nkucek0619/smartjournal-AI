@@ -1,6 +1,6 @@
 import openai
 
-openai.api_key = "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"
+openai.api_key = ""
 f = 'file-LXusegCxGmDfrqOfON1XB3qw'
 response = openai.Classification.create(
     file=f,
